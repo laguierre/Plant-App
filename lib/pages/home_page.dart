@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_app/data/data.dart';
@@ -16,13 +14,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _scrollControllerV = ScrollController();
-  bool _atEdge = false;
+  final _scrollControllerH = ScrollController();
   double _positionV = 0.0;
-  double _finalPos = 1.0;
+  double _positionH = 0.0;
 
   @override
   void initState() {
-    _scrollControllerV.addListener(_listenScrolling);
+    _scrollControllerV.addListener(_listenScrollingV);
+    _scrollControllerH.addListener(_listenScrollingH);
     super.initState();
   }
 
@@ -32,20 +31,23 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _listenScrolling() {
+  void _listenScrollingV() {
     setState(() {
-      if (_scrollControllerV.position.atEdge) {
+      _positionV = _scrollControllerV.position.pixels;
+      if (_positionV < 0) {
         _positionV = 0;
-      } else {
-        _positionV = (_scrollControllerV.position.pixels / _finalPos);
-        if (_positionV < 0) {
-          _positionV = 0;
-        }
-        if (_positionV >= 1) {
-          _positionV = 1.0;
-        }
-        print("$_positionV = $_finalPos");
       }
+      print("Position Vertical: $_positionV");
+    });
+  }
+
+  void _listenScrollingH() {
+    setState(() {
+      _positionH = _scrollControllerH.position.pixels;
+      if (_positionH < 0) {
+        _positionH = 0;
+      }
+      print("Position Horizontal: $_positionH");
     });
   }
 
@@ -55,9 +57,6 @@ class _HomePageState extends State<HomePage> {
     double sizeCustomAppBar = size.height * 0.2;
     double sizeSearchBar = size.height * 0.07;
     double topMarginSearchBar = sizeCustomAppBar - sizeSearchBar / 2;
-    setState(() {
-      _finalPos = size.height * 0.2;
-    });
 
     return SafeArea(
         child: Scaffold(
@@ -75,7 +74,9 @@ class _HomePageState extends State<HomePage> {
           topMarginSearchBar: topMarginSearchBar + 66,
           size: size,
           scrollControllerV: _scrollControllerV,
-          opacityV: _positionV,
+          scrollControllerH: _scrollControllerH,
+          positionV: _positionV,
+          positionH: _positionH,
         ),
         _CustomAppBar(size: sizeCustomAppBar),
         _CustomSearchTextField(
@@ -93,16 +94,22 @@ class _CustomBody extends StatelessWidget {
     required this.topMarginSearchBar,
     required this.size,
     required this.scrollControllerV,
-    required this.opacityV,
+    required this.positionV,
+    required this.scrollControllerH,
+    required this.positionH,
   }) : super(key: key);
 
   final double topMarginSearchBar;
   final Size size;
   final ScrollController scrollControllerV;
-  final double opacityV;
+  final double positionV;
+  final ScrollController scrollControllerH;
+  final double positionH;
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    double posWidget1 = 0.025, posWidget2 = 0.32, posWidget3 = 1;
     return Container(
       margin: EdgeInsets.only(top: topMarginSearchBar),
       padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
@@ -112,17 +119,26 @@ class _CustomBody extends StatelessWidget {
         child: Column(
           children: [
             Opacity(
-                opacity: (1 - 7 * opacityV) < 0 ? 0.0 : 1 - 7 * opacityV,
-                child: _LabelAndButton(
+                opacity: 1 - (positionV / (height * posWidget1)) < 0
+                    ? 0.0
+                    : 1 - (positionV / (height * posWidget1)),
+                child: const _LabelAndButton(
                     textLabel: 'Recommended', textButton: 'More')),
             Opacity(
-                opacity: (1 - 0.8 * opacityV) < 0 ? 0.0 : 1 - 0.8 * opacityV,
-                child: _RecommendedPlant(size: size)),
+                opacity: 1 - (positionV / (height * posWidget2)) < 0
+                    ? 0.0
+                    : 1 - (positionV / (height * posWidget2)),
+                child: _RecommendedPlant(
+                  size: size,
+                  scrollController: scrollControllerH,
+                  position: positionV,
+                )),
             Opacity(
-              opacity: (1 - 0.5 * opacityV) < 0 ? 0.0 : 1 - 0.5 * opacityV,
-              child: _LabelAndButton(
-                  textLabel: 'Featured Plants', textButton: 'More'),
-            ),
+                opacity: 1 - (positionV / (height * posWidget3)) < 0
+                    ? 0.0
+                    : 1 - (positionV / (height * posWidget3)),
+                child: const _LabelAndButton(
+                    textLabel: 'Featured Plants', textButton: 'More')),
             _FeaturedPlant(size: size),
             const SizedBox(
               height: 10,
@@ -146,17 +162,38 @@ class _FeaturedPlant extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: size.height * 0.34,
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: listPlant.length,
-        itemBuilder: (BuildContext context, int index) {
-          final plant = featuredPlant[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-            child: FeaturedPlantCard(recommendedPlant: plant.image),
-          );
+      child: ShaderMask(
+        shaderCallback: (bounds) {
+          return const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              kPrimaryColor,
+              Colors.transparent,
+              Colors.transparent,
+              kPrimaryColor
+            ],
+            stops: [
+              0.0,
+              0.03,
+              0.97,
+              1.0
+            ], // 10% purple, 80% transparent, 10% purple
+          ).createShader(bounds);
         },
+        blendMode: BlendMode.dstOut,
+        child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: listPlant.length,
+          itemBuilder: (BuildContext context, int index) {
+            final plant = featuredPlant[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              child: FeaturedPlantCard(recommendedPlant: plant.image),
+            );
+          },
+        ),
       ),
     );
   }
@@ -166,30 +203,56 @@ class _RecommendedPlant extends StatelessWidget {
   const _RecommendedPlant({
     Key? key,
     required this.size,
+    required this.scrollController,
+    required this.position,
   }) : super(key: key);
 
   final Size size;
+  final ScrollController scrollController;
+  final double position;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: size.height * 0.34,
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: listPlant.length,
-        itemBuilder: (BuildContext context, int index) {
-          final plant = listPlant[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-            child: RecommendedPlantCard(
-                widthCardSize: size.width * 0.38,
-                picture: plant.image,
-                plantName: plant.title,
-                countryName: plant.country,
-                price: plant.price),
-          );
+      child: ShaderMask(
+        shaderCallback: (bounds) {
+          return const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              kPrimaryColor,
+              Colors.transparent,
+              Colors.transparent,
+              kPrimaryColor
+            ],
+            stops: [
+              0.0,
+              0.03,
+              0.97,
+              1.0
+            ], // 10% purple, 80% transparent, 10% purple
+          ).createShader(bounds);
         },
+        blendMode: BlendMode.dstOut,
+        child: ListView.builder(
+          controller: scrollController,
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: listPlant.length,
+          itemBuilder: (BuildContext context, int index) {
+            final plant = listPlant[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              child: RecommendedPlantCard(
+                  widthCardSize: size.width * 0.38,
+                  picture: plant.image,
+                  plantName: plant.title,
+                  countryName: plant.country,
+                  price: plant.price),
+            );
+          },
+        ),
       ),
     );
   }
