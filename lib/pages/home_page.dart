@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   double widthScreen = 1;
   double heightRecommended = 1;
   double heightListRecommended = 1;
+  double heightFeaturedPlant = 1;
 
   @override
   void initState() {
@@ -43,14 +44,21 @@ class _HomePageState extends State<HomePage> {
           _scrollControllerV.position.pixels.clamp(0, heightRecommended) /
               heightRecommended;
       _opacityRecommended =
-      (_scrollControllerV.position.pixels - heightRecommended).clamp(0, heightListRecommended) /
+          (_scrollControllerV.position.pixels - heightRecommended)
+                  .clamp(0, heightListRecommended) /
               heightListRecommended;
 
-      _opacityLabelAndButton_2 = (_scrollControllerV.position.pixels - heightRecommended).clamp(0, heightListRecommended) /
-          heightListRecommended;
+
+      //20 = altura que le quiero dar para que sea efectiva la opacidad
+      _opacityLabelAndButton_2  =
+      ((_scrollControllerV.position.pixels - heightFeaturedPlant) /(15)).clamp(0, 1);
+
+      print("*****************");
       print(_scrollControllerV.position.pixels);
+      print("*****************");
       print("Opacity List: $_opacityRecommended");
-      //print(_scrollControllerV.position.pixels - heightRecommended);
+      print("Opacity Featured: $_opacityLabelAndButton_2");
+      print(_scrollControllerV.position.pixels - heightRecommended);
     });
   }
 
@@ -75,7 +83,8 @@ class _HomePageState extends State<HomePage> {
       widthScreen = size.width;
       heightRecommended = sizeSearchBar;
       heightListRecommended = size.height * heightListCard;
-      print(heightListRecommended);
+      heightFeaturedPlant = heightListRecommended + heightRecommended;
+      print(heightFeaturedPlant);
     });
 
     return SafeArea(
@@ -181,7 +190,7 @@ class _FeaturedPlant extends StatelessWidget {
       height: size.height * heightListCard,
       child: ShaderMask(
         shaderCallback: (bounds) {
-          return LinearGradient(
+          return const LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
@@ -287,7 +296,7 @@ class _LabelAndButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+      padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(textLabel,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
@@ -350,7 +359,7 @@ class _CustomSearchTextField extends StatelessWidget {
                       hintStyle: const TextStyle(color: kPrimaryColor),
                       suffixIcon: IconButton(
                         icon: SvgPicture.asset(search,
-                            color: kPrimaryColor, height: 25),
+                            color: kPrimaryColor, height: 20),
                         onPressed: () {},
                       ),
                       hintText: 'Search',
