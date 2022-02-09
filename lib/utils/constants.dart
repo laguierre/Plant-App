@@ -30,6 +30,8 @@ const img = 'lib/assets/images/img.png';
 const img_main = 'lib/assets/images/img_main.png';
 const logo = 'lib/assets/images/logo.png';
 
+const heightListCard = 0.34;
+
 
 
 

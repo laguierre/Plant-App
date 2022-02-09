@@ -1,8 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_app/data/data.dart';
-import 'package:plant_app/utils/constants.dart';
-
+import '../utils/constants.dart';
 import '../widgets/plant_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,8 +16,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _scrollControllerV = ScrollController();
   final _scrollControllerH = ScrollController();
-  double _positionV = 0.0;
+  double _opacityLabelAndButton_1 = 0.0;
+  double _opacityLabelAndButton_2 = 0.0;
+  double _opacityRecommended = 0.0;
   double _positionH = 0.0;
+  double widthScreen = 1;
+  double heightRecommended = 1;
+  double heightListRecommended = 1;
 
   @override
   void initState() {
@@ -33,11 +39,18 @@ class _HomePageState extends State<HomePage> {
 
   void _listenScrollingV() {
     setState(() {
-      _positionV = _scrollControllerV.position.pixels;
-      if (_positionV < 0) {
-        _positionV = 0;
-      }
-      print("Position Vertical: $_positionV");
+      _opacityLabelAndButton_1 =
+          _scrollControllerV.position.pixels.clamp(0, heightRecommended) /
+              heightRecommended;
+      _opacityRecommended =
+      (_scrollControllerV.position.pixels - heightRecommended).clamp(0, heightListRecommended) /
+              heightListRecommended;
+
+      _opacityLabelAndButton_2 = (_scrollControllerV.position.pixels - heightRecommended).clamp(0, heightListRecommended) /
+          heightListRecommended;
+      print(_scrollControllerV.position.pixels);
+      print("Opacity List: $_opacityRecommended");
+      //print(_scrollControllerV.position.pixels - heightRecommended);
     });
   }
 
@@ -58,6 +71,13 @@ class _HomePageState extends State<HomePage> {
     double sizeSearchBar = size.height * 0.07;
     double topMarginSearchBar = sizeCustomAppBar - sizeSearchBar / 2;
 
+    setState(() {
+      widthScreen = size.width;
+      heightRecommended = sizeSearchBar;
+      heightListRecommended = size.height * heightListCard;
+      print(heightListRecommended);
+    });
+
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -75,7 +95,9 @@ class _HomePageState extends State<HomePage> {
           size: size,
           scrollControllerV: _scrollControllerV,
           scrollControllerH: _scrollControllerH,
-          positionV: _positionV,
+          opacityLabelAndButton_1: _opacityLabelAndButton_1,
+          opacityLabelAndButton_2: _opacityLabelAndButton_2,
+          opacityRecommended: _opacityRecommended,
           positionH: _positionH,
         ),
         _CustomAppBar(size: sizeCustomAppBar),
@@ -94,49 +116,44 @@ class _CustomBody extends StatelessWidget {
     required this.topMarginSearchBar,
     required this.size,
     required this.scrollControllerV,
-    required this.positionV,
     required this.scrollControllerH,
     required this.positionH,
+    required this.opacityLabelAndButton_1,
+    required this.opacityRecommended,
+    required this.opacityLabelAndButton_2,
   }) : super(key: key);
 
   final double topMarginSearchBar;
   final Size size;
   final ScrollController scrollControllerV;
-  final double positionV;
+  final double opacityLabelAndButton_1;
+  final double opacityLabelAndButton_2;
+  final double opacityRecommended;
   final ScrollController scrollControllerH;
   final double positionH;
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
-    double posWidget1 = 0.025, posWidget2 = 0.32, posWidget3 = 1;
     return Container(
       margin: EdgeInsets.only(top: topMarginSearchBar),
-      padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
       child: SingleChildScrollView(
         controller: scrollControllerV,
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             Opacity(
-                opacity: 1 - (positionV / (height * posWidget1)) < 0
-                    ? 0.0
-                    : 1 - (positionV / (height * posWidget1)),
+                opacity: 1 - opacityLabelAndButton_1,
                 child: const _LabelAndButton(
                     textLabel: 'Recommended', textButton: 'More')),
             Opacity(
-                opacity: 1 - (positionV / (height * posWidget2)) < 0
-                    ? 0.0
-                    : 1 - (positionV / (height * posWidget2)),
+                opacity: 1 - opacityRecommended,
                 child: _RecommendedPlant(
                   size: size,
                   scrollController: scrollControllerH,
-                  position: positionV,
+                  position: positionH,
                 )),
             Opacity(
-                opacity: 1 - (positionV / (height * posWidget3)) < 0
-                    ? 0.0
-                    : 1 - (positionV / (height * posWidget3)),
+                opacity: 1 - opacityLabelAndButton_2,
                 child: const _LabelAndButton(
                     textLabel: 'Featured Plants', textButton: 'More')),
             _FeaturedPlant(size: size),
@@ -161,10 +178,10 @@ class _FeaturedPlant extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: size.height * 0.34,
+      height: size.height * heightListCard,
       child: ShaderMask(
         shaderCallback: (bounds) {
-          return const LinearGradient(
+          return LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
@@ -228,8 +245,8 @@ class _RecommendedPlant extends StatelessWidget {
             ],
             stops: [
               0.0,
-              0.03,
-              0.97,
+              0.05,
+              0.95,
               1.0
             ], // 10% purple, 80% transparent, 10% purple
           ).createShader(bounds);
@@ -269,21 +286,24 @@ class _LabelAndButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(textLabel,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
-      MaterialButton(
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20.0))),
-        color: kPrimaryColor,
-        child: Text(textButton,
-            style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Colors.white)),
-        onPressed: () {},
-      )
-    ]);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(textLabel,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+        MaterialButton(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0))),
+          color: kPrimaryColor,
+          child: Text(textButton,
+              style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white)),
+          onPressed: () {},
+        )
+      ]),
+    );
   }
 }
 
