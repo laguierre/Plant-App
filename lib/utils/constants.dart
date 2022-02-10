@@ -30,6 +30,18 @@ const img = 'lib/assets/images/img.png';
 const img_main = 'lib/assets/images/img_main.png';
 const logo = 'lib/assets/images/logo.png';
 
+const List<double> stops = [
+  0.0,
+  0.05,
+  0.95,
+  1.0
+];
+const List<Color> colors = [
+  kPrimaryColor,
+  Colors.transparent,
+  Colors.transparent,
+  kPrimaryColor
+];
 const heightListCard = 0.34;
 
 

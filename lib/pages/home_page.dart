@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_app/data/data.dart';
@@ -48,10 +46,10 @@ class _HomePageState extends State<HomePage> {
                   .clamp(0, heightListRecommended) /
               heightListRecommended;
 
-
       //20 = altura que le quiero dar para que sea efectiva la opacidad
-      _opacityLabelAndButton_2  =
-      ((_scrollControllerV.position.pixels - heightFeaturedPlant) /(15)).clamp(0, 1);
+      _opacityLabelAndButton_2 =
+          ((_scrollControllerV.position.pixels - heightFeaturedPlant) / (15))
+              .clamp(0, 1);
 
       print("*****************");
       print(_scrollControllerV.position.pixels);
@@ -150,21 +148,30 @@ class _CustomBody extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            Opacity(
-                opacity: 1 - opacityLabelAndButton_1,
-                child: const _LabelAndButton(
-                    textLabel: 'Recommended', textButton: 'More')),
-            Opacity(
-                opacity: 1 - opacityRecommended,
-                child: _RecommendedPlant(
-                  size: size,
-                  scrollController: scrollControllerH,
-                  position: positionH,
-                )),
-            Opacity(
-                opacity: 1 - opacityLabelAndButton_2,
-                child: const _LabelAndButton(
-                    textLabel: 'Featured Plants', textButton: 'More')),
+            Transform.scale(
+              scale: 1 - 0.35 * opacityLabelAndButton_1,
+              child: Opacity(
+                  opacity: 1 - opacityLabelAndButton_1,
+                  child: const _LabelAndButton(
+                      textLabel: 'Recommended', textButton: 'More')),
+            ),
+            Transform.scale(
+              scale: 1 - 0.35 * opacityRecommended,
+              child: Opacity(
+                  opacity: 1 - opacityRecommended,
+                  child: _RecommendedPlant(
+                    size: size,
+                    scrollController: scrollControllerH,
+                    position: positionH,
+                  )),
+            ),
+            Transform.scale(
+              scale: 1 - 0.35 * opacityLabelAndButton_2,
+              child: Opacity(
+                  opacity: 1 - opacityLabelAndButton_2,
+                  child: const _LabelAndButton(
+                      textLabel: 'Featured Plants', textButton: 'More')),
+            ),
             _FeaturedPlant(size: size),
             const SizedBox(
               height: 10,
@@ -193,18 +200,8 @@ class _FeaturedPlant extends StatelessWidget {
           return const LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
-            colors: [
-              kPrimaryColor,
-              Colors.transparent,
-              Colors.transparent,
-              kPrimaryColor
-            ],
-            stops: [
-              0.0,
-              0.03,
-              0.97,
-              1.0
-            ], // 10% purple, 80% transparent, 10% purple
+            colors: colors,
+            stops: stops, // 10% purple, 80% transparent, 10% purple
           ).createShader(bounds);
         },
         blendMode: BlendMode.dstOut,
@@ -246,18 +243,8 @@ class _RecommendedPlant extends StatelessWidget {
           return const LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
-            colors: [
-              kPrimaryColor,
-              Colors.transparent,
-              Colors.transparent,
-              kPrimaryColor
-            ],
-            stops: [
-              0.0,
-              0.05,
-              0.95,
-              1.0
-            ], // 10% purple, 80% transparent, 10% purple
+            colors: colors,
+            stops: stops, // 10% purple, 80% transparent, 10% purple
           ).createShader(bounds);
         },
         blendMode: BlendMode.dstOut,
@@ -270,12 +257,16 @@ class _RecommendedPlant extends StatelessWidget {
             final plant = listPlant[index];
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              child: RecommendedPlantCard(
-                  widthCardSize: size.width * 0.38,
-                  picture: plant.image,
-                  plantName: plant.title,
-                  countryName: plant.country,
-                  price: plant.price),
+              child: InkWell(
+                child: RecommendedPlantCard(
+                    widthCardSize: size.width * 0.38,
+                    picture: plant.image,
+                    plantName: plant.title,
+                    countryName: plant.country,
+                    price: plant.price),
+              onTap: (){
+                  print(plant.id);
+              },),
             );
           },
         ),
