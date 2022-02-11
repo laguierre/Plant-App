@@ -260,13 +260,10 @@ class _RecommendedPlant extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: InkWell(
                 child: RecommendedPlantCard(
-                    widthCardSize: size.width * 0.38,
-                    picture: plant.image,
-                    plantName: plant.title,
-                    countryName: plant.country,
-                    price: plant.price),
+                    widthCardSize: size.width * 0.38, plant: plant,
+                    ),
               onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => BuyPlantPage()));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => BuyPlantPage(plant: plant,)));
                   print(plant.id);
               },),
             );

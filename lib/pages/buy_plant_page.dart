@@ -1,21 +1,18 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:plant_app/models/plant_model.dart';
 import 'package:plant_app/utils/constants.dart';
 
-class BuyPlantPage extends StatefulWidget {
-  const BuyPlantPage({Key? key}) : super(key: key);
 
-  @override
-  _BuyPlantPageState createState() => _BuyPlantPageState();
-}
+class BuyPlantPage extends StatelessWidget {
+  const BuyPlantPage({Key? key, required this.plant}) : super(key: key);
 
-class _BuyPlantPageState extends State<BuyPlantPage> {
+  final PlantModel plant;
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    double sizePicture = 0.7;
+    double sizePicture = 0.6;
     return SafeArea(
       child: Scaffold(
         backgroundColor: kBackgroundColor,
@@ -24,7 +21,7 @@ class _BuyPlantPageState extends State<BuyPlantPage> {
           children: [
             Expanded(
               child: Container(
-                padding: EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: 20),
                 width: double.infinity,
                 child: Stack(
                   children: [
@@ -32,10 +29,9 @@ class _BuyPlantPageState extends State<BuyPlantPage> {
                     Container(
                       height: double.infinity,
                       margin:
-                          EdgeInsets.only(left: size.width * (1 - sizePicture)),
+                      EdgeInsets.only(left: size.width * (1 - sizePicture)),
                       width: size.width * sizePicture,
                       decoration: BoxDecoration(
-                        color: Colors.red,
                         boxShadow: [
                           BoxShadow(
                             color: kPrimaryColor.withOpacity(0.1),
@@ -50,13 +46,13 @@ class _BuyPlantPageState extends State<BuyPlantPage> {
                             bottomLeft: Radius.circular(3 * kDefaultPadding)),
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(3*kDefaultPadding), bottomLeft: Radius.circular(3*kDefaultPadding)),
+                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(3*kDefaultPadding), bottomLeft: Radius.circular(3*kDefaultPadding)),
                           child: Hero(
-                            tag: 'prueba',
+                            tag: plant.id,
                             child: Image.asset(
-                        img,
-                        fit: BoxFit.cover,
-                      ),
+                              plant.image,
+                              fit: BoxFit.cover,
+                            ),
                           )),
                     ),
                     const _ButtonsTop(),
@@ -64,7 +60,7 @@ class _BuyPlantPageState extends State<BuyPlantPage> {
                 ),
               ),
             ),
-            _DetailsData(size: size),
+            _DetailsData(size: size, plant: plant),
             _BtnBuyAndDescription(size: size),
           ],
         ),
@@ -127,10 +123,11 @@ class _ButtonsTop extends StatelessWidget {
 class _DetailsData extends StatelessWidget {
   const _DetailsData({
     Key? key,
-    required this.size,
+    required this.size, required this.plant,
   }) : super(key: key);
 
   final Size size;
+  final PlantModel plant;
 
   @override
   Widget build(BuildContext context) {
@@ -145,17 +142,17 @@ class _DetailsData extends StatelessWidget {
             RichText(
               text: TextSpan(children: [
                 TextSpan(
-                    text: 'Angelica', //plantName.toUpperCase(),
+                    text: plant.title, //plantName.toUpperCase(),
                     style: TextStyle(
                         color: Colors.black, fontSize: size.height * 0.05)),
                 TextSpan(
-                    text: '\nRusia', //"\n$countryName",
+                    text: '\n' + plant.country,
                     style: TextStyle(
                         color: kPrimaryColor, fontSize: size.height * 0.03)),
               ]),
             ),
             Spacer(),
-            Text('440', //'\$$price',
+            Text('\$' + plant.price.toString(), //'\$$price',
                 style: TextStyle(
                     fontSize: size.height * 0.05,
                     color: kPrimaryColor,

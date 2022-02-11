@@ -5,6 +5,7 @@ final List<PlantModel> listPlant = [
   PlantModel("Plant #1", image_1, "Country #1", 440, 1),
   PlantModel("Plant #2", image_2, "Country #2", 350, 2),
   PlantModel("Plant #3", image_3, "Country #3", 490, 3),
+  PlantModel("Plant #4", img, "Country #4", 510, 4),
 ];
 
 final List<PlantModel> featuredPlant = [
