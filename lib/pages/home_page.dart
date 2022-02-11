@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_app/data/data.dart';
 import '../utils/constants.dart';
 import '../widgets/plant_card.dart';
+import 'buy_plant_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -265,6 +266,7 @@ class _RecommendedPlant extends StatelessWidget {
                     countryName: plant.country,
                     price: plant.price),
               onTap: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => BuyPlantPage()));
                   print(plant.id);
               },),
             );

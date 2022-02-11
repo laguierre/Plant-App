@@ -38,7 +38,7 @@ class RecommendedPlantCard extends StatelessWidget {
           ClipRRect(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              child: Image.asset(picture)),
+              child: Hero(tag: 'prueba',child: Image.asset(picture))),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.all(8.0),

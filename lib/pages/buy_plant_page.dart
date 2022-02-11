@@ -51,10 +51,13 @@ class _BuyPlantPageState extends State<BuyPlantPage> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.only(topLeft: Radius.circular(3*kDefaultPadding), bottomLeft: Radius.circular(3*kDefaultPadding)),
-                          child: Image.asset(
+                          child: Hero(
+                            tag: 'prueba',
+                            child: Image.asset(
                         img,
                         fit: BoxFit.cover,
-                      )),
+                      ),
+                          )),
                     ),
                     const _ButtonsTop(),
                   ],
@@ -107,7 +110,9 @@ class _ButtonsTop extends StatelessWidget {
         children: [
           IconButton(
             icon: SvgPicture.asset(back_arrow, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
           IconButton(
             icon: SvgPicture.asset(more, color: Colors.black),
