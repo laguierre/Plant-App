@@ -12,4 +12,9 @@ When you scroll up, the widgets near to search bar apply the opacity and transfo
 On the details page, a Hero transitions was used, a big image with its 4 icons on the right side also add to the cart button.
 
 ## Screenshots
-![]
+(https://github.com/laguierre/plant_app/blob/master/screenshots/plant%20app.gif)
+(https://github.com/laguierre/plant_app/blob/master/screenshots/1.png)
+(https://github.com/laguierre/plant_app/blob/master/screenshots/2.png)
+(https://github.com/laguierre/plant_app/blob/master/screenshots/3.png)
+(https://github.com/laguierre/plant_app/blob/master/screenshots/4.png)
+(https://github.com/laguierre/plant_app/blob/master/screenshots/5.png)
