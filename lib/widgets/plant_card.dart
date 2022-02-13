@@ -32,42 +32,46 @@ class RecommendedPlantCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ClipRRect(
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              child: Hero(
-                  tag: plant.id,
-                  child: Image.asset(
-                    plant.image,
-                    fit: BoxFit.cover,
-                  ))),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: Row(
-              //mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: plant.title.toUpperCase(),
-                        style: TextStyle(
-                            color: Colors.black, fontSize: size.height * 0.02)),
-                    TextSpan(
-                        text: "\n" + plant.country,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: size.height * 0.015)),
-                  ]),
+          Hero(
+            tag: plant.id,
+            child: AspectRatio(
+              aspectRatio: 0.85,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)),
+                child: Image.asset(
+                  plant.image,
+                  fit: BoxFit.fill,
                 ),
-                const Spacer(),
-                Text("\$" + plant.price.toString(),
-                    style: TextStyle(
-                        fontSize: size.height * 0.023,
-                        color: kPrimaryColor,
-                        fontWeight: FontWeight.bold)),
-              ],
+              ),
             ),
-          )
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(),
+              RichText(
+                text: TextSpan(children: [
+                  TextSpan(
+                      text: plant.title.toUpperCase(),
+                      style:
+                          const TextStyle(color: Colors.black, fontSize: 18)),
+                  TextSpan(
+                      text: "\n" + plant.country,
+                      style: TextStyle(
+                          color: Colors.black, fontSize: size.height * 0.015)),
+                ]),
+              ),
+              Text("\$" + plant.price.toString(),
+                  style: const TextStyle(
+                      fontSize: 18,
+                      color: kPrimaryColor,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(),
+            ],
+          ),
+          const SizedBox(),
         ],
       ),
     );

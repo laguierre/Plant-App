@@ -4,6 +4,7 @@ import 'package:plant_app/data/data.dart';
 import '../utils/constants.dart';
 import '../widgets/plant_card.dart';
 import 'buy_plant_page.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,12 +24,14 @@ class _HomePageState extends State<HomePage> {
   double heightRecommended = 1;
   double heightListRecommended = 1;
   double heightFeaturedPlant = 1;
+  late bool _blockList;
 
   @override
   void initState() {
     _scrollControllerV.addListener(_listenScrollingV);
     _scrollControllerH.addListener(_listenScrollingH);
     super.initState();
+    _blockList = true;
   }
 
   @override
@@ -52,12 +55,14 @@ class _HomePageState extends State<HomePage> {
           ((_scrollControllerV.position.pixels - heightFeaturedPlant) / (15))
               .clamp(0, 1);
 
-      print("*****************");
-      print(_scrollControllerV.position.pixels);
-      print("*****************");
-      print("Opacity List: $_opacityRecommended");
-      print("Opacity Featured: $_opacityLabelAndButton_2");
-      print(_scrollControllerV.position.pixels - heightRecommended);
+      ///If the Vertical Scroll Position is > 0.1 Size Screen => Block the InkWell
+      ///of the image
+      setState(() {
+        MediaQuery.of(context).size.height * 0.1 >
+                _scrollControllerV.position.pixels
+            ? _blockList = true
+            : _blockList = false;
+      });
     });
   }
 
@@ -83,7 +88,6 @@ class _HomePageState extends State<HomePage> {
       heightRecommended = sizeSearchBar;
       heightListRecommended = size.height * heightListCard;
       heightFeaturedPlant = heightListRecommended + heightRecommended;
-      print(heightFeaturedPlant);
     });
 
     return SafeArea(
@@ -99,7 +103,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: const _CustomBottomNavBar(),
       body: Stack(children: [
         _CustomBody(
-          topMarginSearchBar: topMarginSearchBar + 66,
+          topMarginSearchBar: topMarginSearchBar + size.height * 0.08,
           size: size,
           scrollControllerV: _scrollControllerV,
           scrollControllerH: _scrollControllerH,
@@ -107,6 +111,7 @@ class _HomePageState extends State<HomePage> {
           opacityLabelAndButton_2: _opacityLabelAndButton_2,
           opacityRecommended: _opacityRecommended,
           positionH: _positionH,
+          blockList: _blockList,
         ),
         _CustomAppBar(size: sizeCustomAppBar),
         _CustomSearchTextField(
@@ -129,6 +134,7 @@ class _CustomBody extends StatelessWidget {
     required this.opacityLabelAndButton_1,
     required this.opacityRecommended,
     required this.opacityLabelAndButton_2,
+    required this.blockList,
   }) : super(key: key);
 
   final double topMarginSearchBar;
@@ -139,6 +145,7 @@ class _CustomBody extends StatelessWidget {
   final double opacityRecommended;
   final ScrollController scrollControllerH;
   final double positionH;
+  final bool blockList;
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +171,7 @@ class _CustomBody extends StatelessWidget {
                     size: size,
                     scrollController: scrollControllerH,
                     position: positionH,
+                    blockList: blockList,
                   )),
             ),
             Transform.scale(
@@ -213,7 +221,8 @@ class _FeaturedPlant extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) {
             final plant = featuredPlant[index];
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              padding: EdgeInsets.symmetric(
+                  horizontal: size.width * 0.05, vertical: size.width * 0.05),
               child: FeaturedPlantCard(recommendedPlant: plant.image),
             );
           },
@@ -229,11 +238,13 @@ class _RecommendedPlant extends StatelessWidget {
     required this.size,
     required this.scrollController,
     required this.position,
+    required this.blockList,
   }) : super(key: key);
 
   final Size size;
   final ScrollController scrollController;
   final double position;
+  final bool blockList;
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +252,7 @@ class _RecommendedPlant extends StatelessWidget {
       height: size.height * 0.34,
       child: ShaderMask(
         shaderCallback: (bounds) {
-          return const LinearGradient(
+          return LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: colors,
@@ -257,15 +268,43 @@ class _RecommendedPlant extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) {
             final plant = listPlant[index];
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              padding: EdgeInsets.symmetric(
+                  horizontal: size.width * 0.05, vertical: size.width * 0.05),
               child: InkWell(
                 child: RecommendedPlantCard(
-                    widthCardSize: size.width * 0.38, plant: plant,
-                    ),
-              onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => BuyPlantPage(plant: plant,)));
-                  print(plant.id);
-              },),
+                  widthCardSize: size.width * 0.38,
+                  plant: plant,
+                ),
+                onTap: blockList
+                    ? () {
+                        SystemChrome.setSystemUIOverlayStyle(
+                            const SystemUiOverlayStyle(
+                          systemNavigationBarColor: Colors.transparent,
+                          // navigation bar color
+                          statusBarColor: kBackgroundColor,
+                          // status bar color
+                          statusBarIconBrightness: Brightness.dark,
+                          // status bar icon color
+                          systemNavigationBarIconBrightness:
+                              Brightness.dark, // color of navigation controls
+                        ));
+
+                        Navigator.of(context).push(PageRouteBuilder(
+                            transitionDuration:
+                                const Duration(milliseconds: 500),
+                            pageBuilder: (context, animation, _) {
+                              return FadeTransition(
+                                  opacity: Tween<double>(begin: 0.0, end: 1.0)
+                                      .animate(CurvedAnimation(
+                                          parent: animation,
+                                          curve: Curves.easeOut)),
+                                  child: BuyPlantPage(
+                                    plant: plant,
+                                  ));
+                            }));
+                      }
+                    : null,
+              ),
             );
           },
         ),
@@ -285,8 +324,9 @@ class _LabelAndButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(textLabel,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
@@ -321,7 +361,7 @@ class _CustomSearchTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
       child: Container(
           margin: EdgeInsets.only(top: topMarginSearchBar),
           padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
@@ -336,12 +376,12 @@ class _CustomSearchTextField extends StatelessWidget {
                   offset: const Offset(0, 3), // changes position of shadow
                 ),
               ],
-              borderRadius: BorderRadius.circular(kDefaultPadding)),
+              borderRadius: BorderRadius.circular(size.height * 0.03)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
-                  width: size.width - 4 * kDefaultPadding,
+                  width: size.width - 4 * size.height * 0.025,
                   child: TextField(
                     style: const TextStyle(fontSize: 20),
                     decoration: InputDecoration(
@@ -376,11 +416,11 @@ class _CustomAppBar extends StatelessWidget {
       padding: const EdgeInsets.all(kDefaultPadding),
       width: double.infinity,
       height: size,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           color: kPrimaryColor,
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(40),
-              bottomRight: Radius.circular(40))),
+              bottomLeft: Radius.circular(size * 0.2),
+              bottomRight: Radius.circular(size * 0.2))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
