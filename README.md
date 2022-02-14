@@ -11,8 +11,9 @@ Nice clean plant app UI using flutter, the Home page you "will get search box" t
 When you scroll up, the widgets near to search bar apply the opacity and transform.scale.
 On the details page, a Hero transitions was used, a big image with its 4 icons on the right side also add to the cart button.
 
-## Screenshots
+## GIF
 ![GIF](https://github.com/laguierre/plant_app/blob/master/screenshots/plant%20app.gif)
+## Screenshots
 ![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/2.png)
 ![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/3.png)
 ![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/4.png)
