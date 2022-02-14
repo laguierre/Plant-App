@@ -13,8 +13,7 @@ On the details page, a Hero transitions was used, a big image with its 4 icons o
 
 ## Screenshots
 ![GIF](https://github.com/laguierre/plant_app/blob/master/screenshots/plant%20app.gif)
-![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/1.png =360x760)
-![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/2.png =360x760)
-![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/3.png =360x760)
-![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/4.png =360x760)
-![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/5.png =360x760)
+![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/2.png)
+![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/3.png)
+![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/4.png)
+![Screanshot](https://github.com/laguierre/plant_app/blob/master/screenshots/5.png)
